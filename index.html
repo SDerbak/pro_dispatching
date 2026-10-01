@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ru" class="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Инженерные системы — Диспетчеризация и автоматизация зданий</title>
+<meta name="description" content="Проектирование, монтаж и пусконаладка систем диспетчеризации и автоматизации. Вентиляция, ИТП, кондиционирование, насосные. Склады, цеха, ЖК, школы, поликлиники, храмы.">
+
+<style>
+/* ============================================================
+   ТОКЕНЫ
+   ============================================================ */
+:root{
+  --c-bg-grad: linear-gradient(135deg,#fdfcfb 0%,#f4ede4 50%,#e9dfd2 100%);
+  --c-text: #1a1a2e;
+  --c-text-dim: #5b5f6b;
+  --c-card: rgba(255,255,255,.55);
+  --c-border: rgba(0,0,0,.10);
+  --c-border-hi: rgba(0,0,0,.22);
+  --c-accent: #5b8def;
+  --c-accent-hi: #4a7bdc;
+  --c-accent-soft: rgba(91,141,239,.12);
+  --glass-bg: rgba(0,0,0,.05);
+  --glass-bg-hi: rgba(0,0,0,.09);
+  --glass-border: rgba(0,0,0,.14);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.10);
+  --shadow-lg: 0 20px 40px rgba(0,0,0,.18);
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --font: 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  color-scheme: light;
+}
+html.dark{
+  --c-bg-grad: linear-gradient(135deg,#0d0f12 0%,#1a1d23 50%,#0a0c0f 100%);
+  --c-text: #e8eaed;
+  --c-text-dim: #9aa0aa;
+  --c-card: rgba(255,255,255,.04);
+  --c-border: rgba(255,255,255,.10);
+  --c-border-hi: rgba(255,255,255,.25);
+  --c-accent: #6f9dfa;
+  --c-accent-hi: #85afff;
+  --c-accent-soft: rgba(111,157,250,.15);
+  --glass-bg: rgba(255,255,255,.06);
+  --glass-bg-hi: rgba(255,255,255,.12);
+  --glass-border: rgba(255,255,255,.14);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.45);
+  --shadow-lg: 0 20px 40px rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+
+/* ============================================================
+   БАЗА
+   ============================================================ */
+*{box-sizing:border-box}
+html,body{
+  margin:0;padding:0;
+  min-height:100vh;
+  background: var(--c-bg-grad);
+  background-attachment: fixed;
+  color: var(--c-text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  transition: background .4s ease, color .4s ease;
+  scroll-behavior: smooth;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+section{padding: 80px 40px;}
+.container{max-width:1200px;margin:0 auto;}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar{
+  position: sticky; top: 12px; z-index: 100;
+  margin: 12px 40px 0;
+  padding: 12px 20px;
+  border-radius: 15px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.logo{
+  display: flex; align-items: center; gap: 10px;
+  font-size: 20px; font-weight: 700;
+  letter-spacing: -.2px;
+}
+.logo-mark{
+  width: 32px; height: 32px; border-radius: 9px;
+  background: linear-gradient(135deg,#5b8def,#4f46e5);
+  display: inline-flex; align-items: center; justify-content: center;
+  color:#fff; font-weight:800; font-size: 16px;
+  box-shadow: 0 4px 12px rgba(91,141,239,.4);
+}
+.nav{
+  display: flex; align-items: center; gap: 4px;
+}
+.nav a{
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background .2s ease;
+}
+.nav a:hover{ background: var(--glass-bg-hi); }
+.theme-toggle{
+  border: none;
+  background: var(--glass-bg);
+  color: var(--c-text);
+  cursor: pointer;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  font-size: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .2s ease;
+}
+.theme-toggle:hover{ background: var(--glass-bg-hi); }
+
+@media (max-width: 820px){
+  .topbar{ margin: 10px 14px 0; padding: 10px 14px; }
+  .nav a{ padding: 6px 10px; font-size: 14px; }
+}
+@media (max-width: 560px){
+  .nav a:not(.nav-cta){ display: none; }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  padding: 100px 40px 80px;
+  text-align: center;
+}
+.hero-badge{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--c-accent-soft);
+  border: 1px solid rgba(91,141,239,.3);
+  color: var(--c-accent-hi);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 22px;
+}
+.hero-badge::before{
+  content:''; width:8px; height:8px; border-radius:50%;
+  background:#22c55e; box-shadow:0 0 0 4px rgba(34,197,94,.2);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{ opacity:1 }
+  50%{ opacity:.4 }
+}
+.hero h1{
+  font-size: clamp(32px, 5.5vw, 62px);
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  margin: 0 0 20px;
+  max-width: 900px;
+  margin-inline: auto;
+}
+.hero h1 .accent{
+  background: linear-gradient(135deg,#5b8def,#8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero p{
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.55;
+  color: var(--c-text-dim);
+  max-width: 700px;
+  margin: 0 auto 36px;
+}
+.hero-cta{
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+}
+.btn{
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .15s, box-shadow .2s, background .2s;
+  white-space: nowrap;
+}
+.btn--primary{
+  background: linear-gradient(135deg,#5b8def,#4f46e5);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(91,141,239,.35);
+}
+.btn--primary:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(91,141,239,.5);
+}
+.btn--ghost{
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  color: var(--c-text);
+}
+.btn--ghost:hover{
+  background: var(--glass-bg-hi);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   ЗАГОЛОВКИ СЕКЦИЙ
+   ============================================================ */
+.section-title{
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 0 0 10px;
+  line-height: 1.15;
+}
+.section-sub{
+  font-size: 16px;
+  color: var(--c-text-dim);
+  max-width: 640px;
+  margin: 0 0 48px;
+  line-height: 1.55;
+}
+
+/* ============================================================
+   УСЛУГИ
+   ============================================================ */
+.services-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+.service-card{
+  padding: 26px 24px;
+  border-radius: var(--r-lg);
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-md);
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.service-card:hover{
+  transform: translateY(-4px);
+  border-color: var(--c-border-hi);
+  box-shadow: var(--shadow-lg);
+}
+.service-icon{
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: var(--c-accent-soft);
+  color: var(--c-accent-hi);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.service-card h3{
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: -.01em;
+}
+.service-card p{
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--c-text-dim);
+  margin: 0;
+}
+
+/* ============================================================
+   ОПЫТ / ОБЪЕКТЫ
+   ============================================================ */
+.objects-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.object-tile{
+  padding: 24px 20px;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  text-align: center;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+.object-tile:hover{
+  transform: translateY(-3px);
+  border-color: var(--c-border-hi);
+  box-shadow: var(--shadow-md);
+}
+.object-tile__icon{
+  font-size: 34px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.object-tile__name{
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.object-tile__note{
+  font-size: 12.5px;
+  color: var(--c-text-dim);
+  margin-top: 4px;
+}
+
+/* ============================================================
+   ПРИМЕРЫ РАБОТ (кейсы)
+   ============================================================ */
+.cases-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+}
+.case-card{
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.case-card:hover{
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--c-border-hi);
+}
+.case-cover{
+  height: 160px;
+  background: linear-gradient(135deg,#5b8def 0%, #8b5cf6 100%);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 52px;
+}
+.case-cover--violet{ background: linear-gradient(135deg,#8b5cf6,#ec4899); }
+.case-cover--orange{ background: linear-gradient(135deg,#f59e0b,#ef4444); }
+.case-cover--green{ background: linear-gradient(135deg,#10b981,#059669); }
+.case-cover--cyan{ background: linear-gradient(135deg,#06b6d4,#3b82f6); }
+.case-cover--slate{ background: linear-gradient(135deg,#64748b,#334155); }
+.case-body{
+  padding: 22px 22px 24px;
+  display: flex; flex-direction: column; gap: 10px;
+  flex: 1;
+}
+.case-tag{
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--c-accent-soft);
+  color: var(--c-accent-hi);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.case-card h3{
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+.case-card p{
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--c-text-dim);
+  margin: 0;
+}
+.case-specs{
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-border);
+}
+.case-spec{
+  font-size: 12px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--glass-bg);
+  color: var(--c-text-dim);
+  border: 1px solid var(--c-border);
+}
+
+/* ============================================================
+   О НАС / ПРОЦЕСС
+   ============================================================ */
+.about-wrap{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+@media (max-width: 860px){
+  .about-wrap{ grid-template-columns: 1fr; gap: 32px; }
+}
+.about-text p{
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--c-text-dim);
+  margin: 0 0 16px;
+}
+.about-text strong{ color: var(--c-text); font-weight: 600; }
+.steps{
+  display: flex; flex-direction: column; gap: 14px;
+}
+.step{
+  display: flex; gap: 16px;
+  padding: 18px 20px;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.step__num{
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: var(--c-accent-soft);
+  color: var(--c-accent-hi);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+.step__text h4{
+  margin: 0 0 4px;
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.step__text p{
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--c-text-dim);
+}
+
+/* ============================================================
+   КОНТАКТЫ
+   ============================================================ */
+.contacts-card{
+  padding: 48px 40px;
+  border-radius: var(--r-lg);
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-md);
+}
+.contacts-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+.contact-item{
+  display: flex; flex-direction: column; gap: 4px;
+}
+.contact-item__label{
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--c-text-dim);
+  font-weight: 600;
+}
+.contact-item__value{
+  font-size: 17px;
+  font-weight: 600;
+  word-break: break-word;
+}
+.contact-item__value a:hover{ color: var(--c-accent-hi); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  margin: 40px 40px 24px;
+  padding: 28px 32px;
+  border-radius: var(--r-md);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: var(--c-text-dim);
+  font-size: 14px;
+}
+.footer a{ color: var(--c-text); font-weight: 500; }
+.footer a:hover{ color: var(--c-accent-hi); }
+
+@media (max-width: 700px){
+  section{ padding: 56px 20px; }
+  .hero{ padding: 60px 20px 40px; }
+  .footer{ margin: 24px 14px; padding: 20px; flex-direction: column; text-align: center; }
+  .contacts-card{ padding: 32px 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- =================== TOPBAR =================== -->
+<header class="topbar">
+  <a href="#top" class="logo">
+    <span class="logo-mark">ИС</span>
+    <span>Инженерные&nbsp;Системы</span>
+  </a>
+  <nav class="nav">
+    <a href="#services">Услуги</a>
+    <a href="#objects">Объекты</a>
+    <a href="#cases">Работы</a>
+    <a href="#about">О нас</a>
+    <a href="#contacts">Контакты</a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Сменить тему">🌙</button>
+  </nav>
+</header>
+
+<!-- =================== HERO =================== -->
+<section class="hero" id="top">
+  <div class="container">
+    <div class="hero-badge">Принимаем заявки на 2026 год</div>
+    <h1>
+      Диспетчеризация и автоматизация<br>
+      <span class="accent">зданий и сооружений</span>
+    </h1>
+    <p>
+      Проектируем, монтируем и запускаем системы автоматизации любой сложности:
+      от частного умного дома до промышленного цеха. Полный цикл — от проекта до пусконаладки.
+    </p>
+    <div class="hero-cta">
+      <a href="#contacts" class="btn btn--primary">Обсудить проект →</a>
+      <a href="#cases" class="btn btn--ghost">Примеры работ</a>
+    </div>
+  </div>
+</section>
+
+<!-- =================== УСЛУГИ =================== -->
+<section id="services">
+  <div class="container">
+    <h2 class="section-title">Что мы делаем</h2>
+    <p class="section-sub">
+      Комплексная автоматизация инженерных систем объекта — от одной установки до диспетчерского пункта целого здания.
+    </p>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">🖥️</div>
+        <h3>Диспетчеризация</h3>
+        <p>Единый диспетчерский пункт с выводом всех инженерных систем. Мониторинг, аварийные оповещения, архивы событий и параметров.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">⚙️</div>
+        <h3>Автоматизация</h3>
+        <p>Шкафы управления, ПЛК-программирование, SCADA-системы. Автоматика для любого технологического процесса.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🌀</div>
+        <h3>Вентиляция и дымоудаление</h3>
+        <p>Автоматика приточно-вытяжных установок, противодымной вентиляции, систем подпора воздуха. Соответствие нормам МЧС.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🔥</div>
+        <h3>ИТП и тепловые пункты</h3>
+        <p>Автоматизация индивидуальных тепловых пунктов: погодозависимое регулирование, учёт тепла, защита от аварий.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">❄️</div>
+        <h3>Кондиционирование и холод</h3>
+        <p>Управление чиллерами, фанкойлами, VRF-системами. Каскадное регулирование, диспетчеризация холодильных центров.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">💧</div>
+        <h3>Насосные станции</h3>
+        <p>Автоматизация водоснабжения, пожаротушения, дренажа. Частотное регулирование, резервирование, защита от сухого хода.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🏠</div>
+        <h3>Умные дома</h3>
+        <p>Управление освещением, климатом, шторами, мультирум. Интеграция с голосовыми ассистентами и мобильным приложением.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">📐</div>
+        <h3>Проектирование</h3>
+        <p>Разработка разделов АТХ, АОВ, ВК, ЭОМ. Согласование, рабочая документация, спецификации оборудования.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== ОБЪЕКТЫ =================== -->
+<section id="objects">
+  <div class="container">
+    <h2 class="section-title">На каких объектах работали</h2>
+    <p class="section-sub">
+      За плечами — десятки проектов разного масштаба: от небольших частных домов до промышленных цехов и социальных учреждений.
+    </p>
+
+    <div class="objects-grid">
+      <div class="object-tile">
+        <div class="object-tile__icon">🏭</div>
+        <div class="object-tile__name">Склады и логистика</div>
+        <div class="object-tile__note">Холодные и тёплые склады, сортировочные центры</div>
+      </div>
+      <div class="object-tile">
+        <div class="object-tile__icon">🏗️</div>
+        <div class="object-tile__name">Цеха заводов</div>
+        <div class="object-tile__note">Производственные линии, технологическая автоматика</div>
+      </div>
+      <div class="object-tile">
+        <div class="object-tile__icon">🏢</div>
+        <div class="object-tile__name">Жилые комплексы</div>
+        <div class="object-tile__note">ИТП, насосные, диспетчеризация подъездов</div>
+      </div>
+      <div class="object-tile">
+        <div class="object-tile__icon">🏥</div>
+        <div class="object-tile__name">Поликлиники</div>
+        <div class="object-tile__note">Чистые помещения, вентиляция, медицинские газы</div>
+      </div>
+      <div class="object-tile">
+        <div class="object-tile__icon">🏫</div>
+        <div class="object-tile__name">Школы и детсады</div>
+        <div class="object-tile__note">Вентиляция, автоматика безопасности, диспетчеризация</div>
+      </div>
+      <div class="object-tile">
+        <div class="object-tile__icon">⛪</div>
+        <div class="object-tile__name">Храмы</div>
+        <div class="object-tile__note">Отопление, вентиляция, автоматика больших объёмов</div>
+      </div>
+      <div class="object-tile">
+        <div class="object-tile__icon">🏬</div>
+        <div class="object-tile__name">Торговые центры</div>
+        <div class="object-tile__note">Вентиляция, холодоснабжение, дымоудаление</div>
+      </div>
+      <div class="object-tile">
+        <div class="object-tile__icon">🏨</div>
+        <div class="object-tile__name">Гостиницы и офисы</div>
+        <div class="object-tile__note">Климат-контроль, умное освещение, BMS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== КЕЙСЫ =================== -->
+<section id="cases">
+  <div class="container">
+    <h2 class="section-title">Примеры работ</h2>
+    <p class="section-sub">
+      Несколько показательных проектов. За каждым — полный цикл: от обследования объекта до сдачи в эксплуатацию.
+    </p>
+
+    <div class="cases-grid">
+
+      <article class="case-card">
+        <div class="case-cover">🏭</div>
+        <div class="case-body">
+          <span class="case-tag">Склад</span>
+          <h3>Логистический комплекс 24 000 м²</h3>
+          <p>Диспетчеризация вентиляции, холодильных камер и насосной станции пожаротушения. Единый диспетчерский пункт с выводом на SCADA.</p>
+          <div class="case-specs">
+            <span class="case-spec">SCADA</span>
+            <span class="case-spec">12 шкафов</span>
+            <span class="case-spec">280 точек ввода</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="case-card">
+        <div class="case-cover case-cover--cyan">🏗️</div>
+        <div class="case-body">
+          <span class="case-tag">Производство</span>
+          <h3>Автоматизация цеха металлообработки</h3>
+          <p>Управление приточно-вытяжной вентиляцией, аспирацией и местными отсосами. Привязка к технологическому циклу, учёт наработки оборудования.</p>
+          <div class="case-specs">
+            <span class="case-spec">ПЛК Siemens</span>
+            <span class="case-spec">Аспирация</span>
+            <span class="case-spec">Дымоудаление</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="case-card">
+        <div class="case-cover case-cover--green">🏢</div>
+        <div class="case-body">
+          <span class="case-tag">ЖК</span>
+          <h3>Жилой комплекс из 4 корпусов</h3>
+          <p>ИТП с погодозависимым регулированием, насосные, диспетчеризация всех корпусов на единый сервер. Диспетчер видит аварии в реальном времени.</p>
+          <div class="case-specs">
+            <span class="case-spec">4 ИТП</span>
+            <span class="case-spec">Учёт тепла</span>
+            <span class="case-spec">Диспетчерская</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="case-card">
+        <div class="case-cover case-cover--violet">🏥</div>
+        <div class="case-body">
+          <span class="case-tag">Поликлиника</span>
+          <h3>Поликлиника на 600 посещений</h3>
+          <p>Автоматика чистых помещений, операционных, бактерицидных установок. Контроль перепада давления, температуры, кратности воздухообмена.</p>
+          <div class="case-specs">
+            <span class="case-spec">Чистые помещения</span>
+            <span class="case-spec">Перепад давлений</span>
+            <span class="case-spec">24/7 мониторинг</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="case-card">
+        <div class="case-cover case-cover--orange">🏫</div>
+        <div class="case-body">
+          <span class="case-tag">Школа</span>
+          <h3>Школа на 1 200 учеников</h3>
+          <p>Приточно-вытяжные установки с рекуперацией, автоматика столовой, спортзала и бассейна. Диспетчеризация всех систем на пост охраны.</p>
+          <div class="case-specs">
+            <span class="case-spec">Рекуперация</span>
+            <span class="case-spec">Бассейн</span>
+            <span class="case-spec">Столовая</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="case-card">
+        <div class="case-cover case-cover--slate">⛪</div>
+        <div class="case-body">
+          <span class="case-tag">Храм</span>
+          <h3>Автоматизация отопления храма</h3>
+          <p>Отопление большого объёма с зонированием, вентиляция с сохранением естественной акустики. Тёплые полы, антиобледенение входов.</p>
+          <div class="case-specs">
+            <span class="case-spec">Зонирование</span>
+            <span class="case-spec">Тёплые полы</span>
+            <span class="case-spec">Антиобледенение</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- =================== О НАС =================== -->
+<section id="about">
+  <div class="container">
+    <h2 class="section-title">Как мы работаем</h2>
+    <p class="section-sub">
+      Работаем «под ключ»: одна команда отвечает и за проект, и за монтаж, и за пусконаладку.
+    </p>
+
+    <div class="about-wrap">
+      <div class="about-text">
+        <p>
+          <strong>Инженерные Системы</strong> — команда инженеров-автоматизаторов с практическим опытом
+          на объектах от частных домов до промышленных предприятий.
+        </p>
+        <p>
+          Мы не просто поставляем оборудование — мы <strong>понимаем технологию</strong> каждого объекта
+          и подбираем решение под задачу заказчика, а не наоборот.
+        </p>
+        <p>
+          Работаем с российским и импортным оборудованием: Siemens, Schneider Electric, ОВЕН,
+          Segnetics, Wiren Board и другие. Даём <strong>гарантию</strong> на все системы и оказываем
+          сервисную поддержку после сдачи.
+        </p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">1</div>
+          <div class="step__text">
+            <h4>Обследование объекта</h4>
+            <p>Выезд на место, изучение существующих систем, постановка задач.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">2</div>
+          <div class="step__text">
+            <h4>Проект и спецификация</h4>
+            <p>Рабочая документация, подбор оборудования, согласование с заказчиком.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">3</div>
+          <div class="step__text">
+            <h4>Монтаж и сборка шкафов</h4>
+            <p>Собственные шкафы управления, монтаж полевого уровня, прокладка линий связи.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">4</div>
+          <div class="step__text">
+            <h4>Пусконаладка и сдача</h4>
+            <p>Программирование, тестирование режимов, обучение персонала, исполнительная документация.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== КОНТАКТЫ =================== -->
+<section id="contacts">
+  <div class="container">
+    <h2 class="section-title">Свяжитесь с нами</h2>
+    <p class="section-sub">
+      Расскажите о задаче — предложим решение и сроки. Первичная консультация бесплатна.
+    </p>
+
+    <div class="contacts-card">
+      <div class="contacts-grid">
+        <div class="contact-item">
+          <span class="contact-item__label">Телефон</span>
+          <span class="contact-item__value">
+            <a href="tel:+70000000000">+7 (000) 000-00-00</a>
+          </span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item__label">Email</span>
+          <span class="contact-item__value">
+            <a href="mailto:info@example.ru">info@example.ru</a>
+          </span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item__label">Telegram / WhatsApp</span>
+          <span class="contact-item__value">
+            <a href="https://t.me/username" target="_blank" rel="noopener">@username</a>
+          </span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item__label">География работ</span>
+          <span class="contact-item__value">Россия, выезд на объект</span>
+        </div>
+      </div>
+
+      <div style="margin-top:32px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="tel:+70000000000" class="btn btn--primary">📞 Позвонить</a>
+        <a href="mailto:info@example.ru" class="btn btn--ghost">✉️ Написать</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="footer">
+  <div>© <span id="year"></span> Инженерные Системы. Диспетчеризация и автоматизация.</div>
+  <div>Сделано с любовью к инженерии ⚙️</div>
+</footer>
+
+<script>
+// ----- Год в футере -----
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// ----- Тема -----
+const root = document.documentElement;
+const btn = document.getElementById('themeToggle');
+
+function applyTheme(theme){
+  root.classList.toggle('dark', theme === 'dark');
+  root.classList.toggle('light', theme !== 'dark');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('theme', theme);
+}
+
+// системная тема по умолчанию
+const saved = localStorage.getItem('theme');
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+
+btn.addEventListener('click', () => {
+  applyTheme(root.classList.contains('dark') ? 'light' : 'dark');
+});
+
+// ----- Плавная прокрутка с учётом sticky topbar -----
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id.length < 2) return;
+    const el = document.querySelector(id);
+    if (!el) return;
+    e.preventDefault();
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
